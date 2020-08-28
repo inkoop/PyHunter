@@ -14,10 +14,10 @@ class PyHunter:
 
         request_kwargs = dict(params=params)
         if payload:
-            request_kwargs.setdefault(json=payload)
+            request_kwargs.setdefault("json", payload)
 
         if headers:
-            request_kwargs.setdefault(headers=headers)
+            request_kwargs.setdefault("headers", headers)
 
         res = getattr(requests, request_type)(endpoint, **request_kwargs)
         res.raise_for_status()
@@ -486,3 +486,40 @@ class PyHunter:
         )
 
         return self._query_hunter(endpoint, params, 'delete')
+
+    def get_campaigns(self, started=None, archived=None):
+        """
+        Returns all the campaigns in your account.
+
+        :param started: Only returns the campaigns that have been started.
+        
+        :param archived: Only returns the campaigns that have been archived.
+
+        :return: 200 Response.
+        """
+        params = self.base_params
+
+        endpoint = self.base_endpoint.format(
+            'campaigns/'
+        )
+
+        return self._query_hunter(endpoint, params)
+
+    def add_recipient_to_campaign(self, campaign_id, emails):
+        """
+        Add a recipient to a campaign. The parameters must be passed as a JSON hash.
+
+        :param campaign_id: Identifier of the campaign
+        
+        :param emails: List of email addresses to add to the campaign
+
+        :return: 200 Response.
+        """
+        params = self.base_params
+
+        endpoint = self.base_endpoint.format(
+            'campaigns/' + str(campaign_id) + '/recipients'
+        )
+        payload = {"emails": emails}
+
+        return self._query_hunter(endpoint, params, 'post', payload)
